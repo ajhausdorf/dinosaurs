@@ -1,3 +1,4 @@
+// the purpose of this project is OOP and section 3 is on async/await, so I will return to accessing json dynamically in a later section
 let json = {
     "Dinos": [
         {
@@ -76,7 +77,6 @@ let json = {
 };
 
     // Create Dino Constructor
-
     class Animal {
         constructor(species, height, weight, diet, where, when, fact) {
             this.species = species,
@@ -105,13 +105,11 @@ let json = {
     }
 
     // Create Dino Objects
-
     const dinosArr = json["Dinos"].map(d => {
         return new Dinosaur(d.species, d.height, d.weight, d.diet, d.where, d.when, d.fact);
     });
 
     // Create Human Object
-
     class Human extends Animal {
         constructor(name, height, weight, diet, img) {
             super(height, weight, diet, img);
@@ -125,11 +123,11 @@ let json = {
     // Use IIFE to get human data from form
     // On button click, prepare and display infographic
     let button = document.getElementById("btn");
-    button.addEventListener('click', (function(h) {
+    button.addEventListener('click', (h => {
         const convertHeightToInches = (feet, inches) => {
             return feet * 12 + inches * 1
         }
-        return function() {
+        return () => {
             let feet = document.getElementById("feet").value;
             let inches = document.getElementById("inches").value;
             h.name = document.getElementById("name").value;
@@ -143,127 +141,115 @@ let json = {
     //this function is immediately invoked, but since the click event listener is tied to the returned function, 
     //the data within the function is protected and not executed until the click happens.
 
-    // Create Dino Compare Height Method
-    const compareHeight = dinoHeight => {
-        const humanHeight = human.height;
-        let statement = '';
-        if (dinoHeight > humanHeight) {
-            statement = `This dinosaur is ${dinoHeight - humanHeight} inches taller than you at ${dinoHeight}in`;
-        } else if (dinoHeight < humanHeight) {
-            statement = `This dinosaur is ${humanHeight - dinoHeight} inches shorter than you at ${dinoHeight}in`;
-        } else if (dinoHeight === humanHeight) {
-            statement = `You and this dinosaur are the same height!`;
-        }
-        return statement
-    };
-
-    // Create Dino Compare Weight Method 
-    const compareWeight = dinoWeight => {
-        const humanWeight = human.weight;
-        let statement = '';
-        if (dinoWeight > humanWeight) {
-            statement = `This dinosaur is ${dinoWeight - humanWeight} pounds heavier than you at ${dinoWeight}lbs`;
-        } else if (dinoWeight < humanWeight) {
-            statement = `This dinosaur is ${humanWeight - dinoWeight} pounds lighter than you at ${dinoWeight}lbs`;
-        } else if (dinoWeight === humanWeight) {
-            statement = `You and this dinosaur are the same weight!`;
-        }
-        return statement
-    };
-
-    
-    // Create Dino Compare Diet Method
-    const compareDiet = dinoDiet => {
-        const humanDiet = human.diet.toLowerCase();
-        let statement = '';
-        if (humanDiet === dinoDiet) {
-            statement = `You and this dinosaur have the same diet! You ${human.diet}s you, peas in a pod`;
-        } else {
-            statement = `This dinosaur is a ${dinoDiet}.  Bet you're glad you don't have to eat like that!`;
-        }
-        return statement
-    };
-
     // Generate Tiles for each Dino in Array
-
     const generateTiles = () => {
+
+        //helper method for picking a fact to show at random
         const randomFact = () => {
             let dinoKeys = Object.keys(dinosArr[0]);
-            let factArray = dinoKeys.filter(function(a) {
-                return a != "species" && a != "img";
-            });
+            let factArray = dinoKeys.filter(a => a != "species" && a != "img");
+
             //source: learned Match.floor(Math.random(arr.length)) technique in Codecademy
             let factKey = factArray[Math.floor(Math.random()*factArray.length)]; 
             return factKey
         }
-        let tilesArr = dinosArr.map(d => {
-            let factKey = '';
-            //make sure the Pigeon card displays the "All birds are dinosaurs" fact, else get random fact
-            d.species === "Pigeon" ? factKey = 'fact' : factKey = randomFact(); 
-            let factValue = '';
-            //if the random fact matches a compare method, reroute to the compare method
-            if (factKey === 'height') {
-                factValue = compareHeight(d.height);
-            }
-            else if (factKey === 'weight') {
-                factValue = compareWeight(d.weight);
-            }
-            else if (factKey === 'diet') {
-                factValue = compareDiet(d.diet);
-            }
-            //if not height, weight, or diet, return value of the fact from the object
-            else {
-                factValue = d[factKey];
-            }
 
-            //capitalize the first letter of the factKey for display
-            //source: https://flaviocopes.com/how-to-uppercase-first-letter-javascript/
-            factKey = factKey.charAt(0).toUpperCase() + factKey.slice(1);
-
-            return {
-                species: d.species,
-                img: d.img,
-                factKey: factKey,
-                factValue: factValue
+        // Create Dino Compare Height Method
+        const compareHeight = dinoHeight => {
+            const humanHeight = human.height;
+            let statement = '';
+            if (dinoHeight > humanHeight) {
+                statement = `This dinosaur is ${dinoHeight - humanHeight} inches taller than you at ${dinoHeight}in`;
+            } else if (dinoHeight < humanHeight) {
+                statement = `This dinosaur is ${humanHeight - dinoHeight} inches shorter than you at ${dinoHeight}in`;
+            } else if (dinoHeight === humanHeight) {
+                statement = `You and this dinosaur are the same height!`;
             }
-        });
-        //create the human tile
-        let humanTile = {
-            species: human.name,
-            img: human.img
-        }
+            return statement
+        };
+
+        // Create Dino Compare Weight Method 
+        const compareWeight = dinoWeight => {
+            const humanWeight = human.weight;
+            let statement = '';
+            if (dinoWeight > humanWeight) {
+                statement = `This dinosaur is ${dinoWeight - humanWeight} pounds heavier than you at ${dinoWeight}lbs`;
+            } else if (dinoWeight < humanWeight) {
+                statement = `This dinosaur is ${humanWeight - dinoWeight} pounds lighter than you at ${dinoWeight}lbs`;
+            } else if (dinoWeight === humanWeight) {
+                statement = `You and this dinosaur are the same weight!`;
+            }
+            return statement
+        };
+
+        // Create Dino Compare Diet Method
+        const compareDiet = dinoDiet => {
+            const humanDiet = human.diet.toLowerCase();
+            let statement = '';
+            if (humanDiet === dinoDiet) {
+                statement = `You and this dinosaur have the same diet! You ${human.diet}s you, peas in a pod`;
+            } else {
+                statement = `This dinosaur is a ${dinoDiet}.  Bet you're glad you don't have to eat like that!`;
+            }
+            return statement
+        };
+
         //put human in the center.  
         //Source: https://stackoverflow.com/questions/586182/how-to-insert-an-item-into-an-array-at-a-specific-index-javascript
-        tilesArr.splice(4, 0, humanTile);
+        dinosArr.splice(4, 0, human);
 
         //create html tiles
         //Source: https://developer.mozilla.org/en-US/docs/Web/API/Document/createElement
         //Source: https://developer.mozilla.org/en-US/docs/Web/API/Element/classList
 
-        let grid = document.getElementById('grid');
+        let gridElement = document.getElementById('grid');
 
-        tilesArr.forEach(item => {
+        dinosArr.forEach(item => {
 
-            let tile = document.createElement('div');
-            tile.classList.add("grid-item");
+            let tileElement = document.createElement('div');
+            tileElement.classList.add("grid-item");
 
-            let species = document.createElement('h3');
-            species.innerHTML = item.species;
-            tile.appendChild(species);
+            let nameElement = document.createElement('h3');
+            //add name if human, species if dinosaur
+            item.species ? nameElement.innerHTML = item.species : nameElement.innerHTML = item.name;
+            tileElement.appendChild(nameElement);
 
-            let img = document.createElement('img');
-            img.setAttribute('src', item.img);
-            tile.appendChild(img);
+            let imgElement = document.createElement('img');
+            imgElement.setAttribute('src', item.img);
+            tileElement.appendChild(imgElement);
 
-            //human will not have a fact, so only add the fact to the card if factKey exists on the item objects
-            if (item.factKey) {
-                let fact = document.createElement('p');
-                fact.innerHTML = `${item.factKey}: ${item.factValue}`;
-                tile.appendChild(fact); 
+            //human will not have a fact, so only add a fact if the object is a dinosaur
+            if (item instanceof Dinosaur) {
+                let factKey = '';
+                //make sure the Pigeon card displays the "All birds are dinosaurs" fact, else get random fact
+                item.species === "Pigeon" ? factKey = 'fact' : factKey = randomFact(); 
+                let factValue = '';
+                //if the random fact matches a compare method, reroute to the compare method
+                if (factKey === 'height') {
+                    factValue = compareHeight(item.height);
+                }
+                else if (factKey === 'weight') {
+                    factValue = compareWeight(item.weight);
+                }
+                else if (factKey === 'diet') {
+                    factValue = compareDiet(item.diet);
+                }
+                //if not height, weight, or diet, return value of the fact from the object
+                else {
+                    factValue = item[factKey];
+                }
+
+                //capitalize the first letter of the factKey for display
+                //source: https://flaviocopes.com/how-to-uppercase-first-letter-javascript/
+                factKey = factKey.charAt(0).toUpperCase() + factKey.slice(1);
+
+                let factElement = document.createElement('p');
+                factElement.innerHTML = `${factKey}: ${factValue}`;
+                tileElement.appendChild(factElement); 
             }
 
             // Add tiles to DOM
-            return grid.appendChild(tile)
+            return gridElement.appendChild(tileElement)
         });
 
         // Remove form from screen
