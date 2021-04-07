@@ -75,91 +75,65 @@ let json = {
     ]
 };
 
-    // Helper Functions
-
-    const convertHeightToInches = (feet, inches) => {
-        return feet * 12 + inches * 1
-    }
-
-    const getImg = species => {
-        let lowerCaseSpecies = species.toLowerCase();
-        return `images/${lowerCaseSpecies}.png`
-    }
-
-    const randomFact = () => {
-        let dinoKeys = Object.keys(dinosArr[1]);
-        let factArray = dinoKeys.filter(function(a) {
-            return a != "species" && a != "img";
-        });
-        //source: learned Match.floor(Math.random(arr.length)) technique in Codecademy
-        let factKey = factArray[Math.floor(Math.random()*factArray.length)]; 
-        return factKey
-    }
-
-    //source: https://flaviocopes.com/how-to-uppercase-first-letter-javascript/
-    const capitalize = s => {
-        return s.charAt(0).toUpperCase() + s.slice(1)
-    }
-
     // Create Dino Constructor
 
     class Animal {
-        constructor(species, height, weight, diet, where, when, fact, img) {
+        constructor(species, height, weight, diet, where, when, fact) {
             this.species = species,
             this.height = height,
             this.weight = weight,
             this.diet = diet,
             this.where = where,
             this.when = when,
-            this.fact = fact,
-            this.img = img
+            this.fact = fact        
+        }
+        getImg(species) {
+            let lowerCaseSpecies = species.toLowerCase();
+            return `images/${lowerCaseSpecies}.png`
         }
     }
 
     class Dinosaur extends Animal {
-        constructor(species, height, weight, diet, where, when, fact, img) {
-            super(species, height, weight, diet, img);
+        constructor(species, height, weight, diet, where, when, fact) {
+            super(species, height, weight, diet);
             this.where = where,
             this.when = when,
             this.fact = fact,
-            this.img = getImg(species)
+            this.img = super.getImg(species)
+            //Source: https://hacks.mozilla.org/2015/08/es6-in-depth-subclassing/
         }
     }
 
     // Create Dino Objects
 
     const dinosArr = json["Dinos"].map(d => {
-        let species = d.species;
-        let height = d.height;
-        let weight = d.weight;
-        let diet = d.diet;
-        let where = d.where;
-        let when = d.when;
-        let fact = d.fact;
-        let img = d.image;
-        return new Dinosaur(species, height, weight, diet, where, when, fact, img);
+        return new Dinosaur(d.species, d.height, d.weight, d.diet, d.where, d.when, d.fact);
     });
 
     // Create Human Object
-    
+
     class Human extends Animal {
         constructor(name, height, weight, diet, img) {
             super(height, weight, diet, img);
             this.name = name,
-            this.img = getImg("human")
+            this.img = super.getImg("human")
         }
     }
+
     const human = new Human();
 
     // Use IIFE to get human data from form
     // On button click, prepare and display infographic
     let button = document.getElementById("btn");
     button.addEventListener('click', (function(h) {
+        const convertHeightToInches = (feet, inches) => {
+            return feet * 12 + inches * 1
+        }
         return function() {
             let feet = document.getElementById("feet").value;
             let inches = document.getElementById("inches").value;
             h.name = document.getElementById("name").value;
-            h.height = convertHeightToInches(feet, inches);;
+            h.height = convertHeightToInches(feet, inches);
             h.weight = document.getElementById("weight").value;
             h.diet = document.getElementById("diet").value;
             generateTiles();
@@ -213,6 +187,15 @@ let json = {
     // Generate Tiles for each Dino in Array
 
     const generateTiles = () => {
+        const randomFact = () => {
+            let dinoKeys = Object.keys(dinosArr[0]);
+            let factArray = dinoKeys.filter(function(a) {
+                return a != "species" && a != "img";
+            });
+            //source: learned Match.floor(Math.random(arr.length)) technique in Codecademy
+            let factKey = factArray[Math.floor(Math.random()*factArray.length)]; 
+            return factKey
+        }
         let tilesArr = dinosArr.map(d => {
             let factKey = '';
             //make sure the Pigeon card displays the "All birds are dinosaurs" fact, else get random fact
@@ -232,8 +215,11 @@ let json = {
             else {
                 factValue = d[factKey];
             }
+
             //capitalize the first letter of the factKey for display
-            factKey = capitalize(factKey);
+            //source: https://flaviocopes.com/how-to-uppercase-first-letter-javascript/
+            factKey = factKey.charAt(0).toUpperCase() + factKey.slice(1);
+
             return {
                 species: d.species,
                 img: d.img,
