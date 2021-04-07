@@ -70,23 +70,23 @@ let json = {
             "diet": "herbivore",
             "where": "World Wide",
             "when": "Holocene",
-            "fact": "All birds are living dinosaurs."
+            "fact": "All birds are dinosaurs."
         }
     ]
 };
 
     // Helper Functions
 
-    function convertHeightToInches(feet, inches) {
+    const convertHeightToInches = (feet, inches) => {
         return feet * 12 + inches * 1
     }
 
-    function getImg(species) {
-        lowerCaseSpecies = species.toLowerCase();
+    const getImg = species => {
+        let lowerCaseSpecies = species.toLowerCase();
         return `images/${lowerCaseSpecies}.png`
     }
 
-    function randomFact() {
+    const randomFact = () => {
         let dinoKeys = Object.keys(dinosArr[1]);
         let factArray = dinoKeys.filter(function(a) {
             return a != "species" && a != "img";
@@ -97,28 +97,38 @@ let json = {
     }
 
     //source: https://flaviocopes.com/how-to-uppercase-first-letter-javascript/
-    function capitalize(s) {
+    const capitalize = s => {
         return s.charAt(0).toUpperCase() + s.slice(1)
     }
 
     // Create Dino Constructor
 
-    function Dinosaur(species, height, weight, diet, where, when, fact, img) {
-        return {
-            species: species,
-            height: height,
-            weight: weight,
-            diet: diet,
-            where: where,
-            when: when,
-            fact: fact,
-            img: img
-        };
+    class Animal {
+        constructor(species, height, weight, diet, where, when, fact, img) {
+            this.species = species,
+            this.height = height,
+            this.weight = weight,
+            this.diet = diet,
+            this.where = where,
+            this.when = when,
+            this.fact = fact,
+            this.img = img
+        }
+    }
+
+    class Dinosaur extends Animal {
+        constructor(species, height, weight, diet, where, when, fact, img) {
+            super(species, height, weight, diet, img);
+            this.where = where,
+            this.when = when,
+            this.fact = fact,
+            this.img = getImg(species)
+        }
     }
 
     // Create Dino Objects
 
-    const dinosArr = json["Dinos"].map(function(d) {
+    const dinosArr = json["Dinos"].map(d => {
         let species = d.species;
         let height = d.height;
         let weight = d.weight;
@@ -126,25 +136,20 @@ let json = {
         let where = d.where;
         let when = d.when;
         let fact = d.fact;
-        let img = getImg(d.species);
-        return Dinosaur(species, height, weight, diet, where, when, fact, img)
+        let img = d.image;
+        return new Dinosaur(species, height, weight, diet, where, when, fact, img);
     });
 
     // Create Human Object
-
-    function Human(name, feet, inches, weight, diet) {
-        let height = convertHeightToInches(feet, inches);
-        let img = getImg("human");
-        return {
-            name: name,
-            height: height,
-            weight: weight,
-            diet: diet,
-            img: img
+    
+    class Human extends Animal {
+        constructor(name, height, weight, diet, img) {
+            super(height, weight, diet, img);
+            this.name = name,
+            this.img = getImg("human")
         }
-    };
-
-    const human = Human();
+    }
+    const human = new Human();
 
     // Use IIFE to get human data from form
     // On button click, prepare and display infographic
@@ -165,7 +170,7 @@ let json = {
     //the data within the function is protected and not executed until the click happens.
 
     // Create Dino Compare Height Method
-    function compareHeight(dinoHeight) {
+    const compareHeight = dinoHeight => {
         const humanHeight = human.height;
         let statement = '';
         if (dinoHeight > humanHeight) {
@@ -179,7 +184,7 @@ let json = {
     };
 
     // Create Dino Compare Weight Method 
-    function compareWeight(dinoWeight) {
+    const compareWeight = dinoWeight => {
         const humanWeight = human.weight;
         let statement = '';
         if (dinoWeight > humanWeight) {
@@ -190,11 +195,11 @@ let json = {
             statement = `You and this dinosaur are the same weight!`;
         }
         return statement
-    }
+    };
 
     
     // Create Dino Compare Diet Method
-    function compareDiet(dinoDiet) {
+    const compareDiet = dinoDiet => {
         const humanDiet = human.diet.toLowerCase();
         let statement = '';
         if (humanDiet === dinoDiet) {
@@ -203,14 +208,14 @@ let json = {
             statement = `This dinosaur is a ${dinoDiet}.  Bet you're glad you don't have to eat like that!`;
         }
         return statement
-    }
+    };
 
     // Generate Tiles for each Dino in Array
 
-    function generateTiles() {
-        let tilesArr = dinosArr.map(function(d){
+    const generateTiles = () => {
+        let tilesArr = dinosArr.map(d => {
             let factKey = '';
-            //make sure the Pigeon card displays the "All birds are dinosaurs" fact
+            //make sure the Pigeon card displays the "All birds are dinosaurs" fact, else get random fact
             d.species === "Pigeon" ? factKey = 'fact' : factKey = randomFact(); 
             let factValue = '';
             //if the random fact matches a compare method, reroute to the compare method
@@ -223,11 +228,11 @@ let json = {
             else if (factKey === 'diet') {
                 factValue = compareDiet(d.diet);
             }
-            //else, return value of the fact from the object
+            //if not height, weight, or diet, return value of the fact from the object
             else {
                 factValue = d[factKey];
             }
-            //capitalize the first letter of the factKey
+            //capitalize the first letter of the factKey for display
             factKey = capitalize(factKey);
             return {
                 species: d.species,
@@ -246,13 +251,12 @@ let json = {
         tilesArr.splice(4, 0, humanTile);
 
         //create html tiles
-        let grid = document.getElementById('grid');
-
-
         //Source: https://developer.mozilla.org/en-US/docs/Web/API/Document/createElement
         //Source: https://developer.mozilla.org/en-US/docs/Web/API/Element/classList
 
-        tilesArr.forEach(function(item) {
+        let grid = document.getElementById('grid');
+
+        tilesArr.forEach(item => {
 
             let tile = document.createElement('div');
             tile.classList.add("grid-item");
